@@ -1,12 +1,12 @@
 import re
 
 
-def _convert_list(line):
+def _convert_list(line, list_specification=False):
     list_pattern = r'-\s(.*)'
     match = re.match(list_pattern, line)
     if match:
         # line_text = match.group(1)
-        line_text = match.group(1)
+        line_text = initiation_wrapper(match.group(1), True)
         output = f"<ul>\n<li>{line_text}<li>\n<ul>"
 
         match_found = True
@@ -14,7 +14,10 @@ def _convert_list(line):
         output = line
         match_found = False
 
-    return output, match_found
+    if not list_specification:
+        return output, match_found
+    else:
+        return output
 
 
 def _convert_heading(line, list_specification=False):
@@ -59,3 +62,13 @@ def checker(pattern, line):
         print(match.group(0))
     else:
         print("no match")
+
+
+def initiation_wrapper(line, list_specification):
+    line = _convert_list(line, True)
+    line = _convert_heading(line, True)
+    line = _convert_strong(line)
+    line = _convert_anchor(line)
+
+    return line
+
