@@ -1,26 +1,32 @@
 import re
 
 
-def _convert_list(line, list_specification=False):
+def _convert_list(content_html, line, root_ul_open):
     list_pattern = r'-\s(.*)'
     match = re.match(list_pattern, line)
     if match:
-        # line_text = match.group(1)
-        line_text = initiation_wrapper(match.group(1), True)
-        output = f"<ul>\n<li>{line_text}<li>\n<ul>"
+        li_matched = True
 
-        match_found = True
+        # Open ul if ^li_matched and ul is not open
+        if not root_ul_open:
+            content_html.extend(["<ul>", "\n"]) 
+            root_ul_open = True
+
+        # Check the inside of li for other matches
+        content_html.append(f"<li>{match.group(1)}</li>")
     else:
-        output = line
-        match_found = False
+        li_matched = False
 
-    if not list_specification:
-        return output, match_found
-    else:
-        return output
+        # If li not matched, and ul is still open, close it.
+        if root_ul_open:
+            content_html.extend(["</ul>", "\n"])
+            root_ul_open = False
+        
+
+    return li_matched, root_ul_open
 
 
-def _convert_heading(line, list_specification=False):
+def _convert_heading(line, nesting_flag=False):
     heading_pattern  = r'(#{1,6})\s(.*)'
     match = re.match(heading_pattern, line)
     if match:
@@ -31,7 +37,7 @@ def _convert_heading(line, list_specification=False):
         output = line
         match_found = False
 
-    if not list_specification:
+    if not nesting_flag:
         return output, match_found
     else:
         return output
@@ -64,11 +70,13 @@ def checker(pattern, line):
         print("no match")
 
 
-def initiation_wrapper(line, list_specification):
-    line = _convert_list(line, True)
-    line = _convert_heading(line, True)
-    line = _convert_strong(line)
-    line = _convert_anchor(line)
+def initiation_wrapper(line, ul_open, li_matched, nesting_flag):
+    line = _convert_list(line, ul_open, li_matched, nesting_flag)
+    """
+    # line = _convert_heading(line, nesting_flag)
+    # line = _convert_strong(line)
+    # line = _convert_anchor(line)
+    """
 
     return line
 
