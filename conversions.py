@@ -1,32 +1,67 @@
 import re
 
 
-def _convert_list(content_html, line, root_ul_open):
+def _convert_list(line, root_ul_open):
+    output_list = []
+
     list_pattern = r'-\s(.*)'
     match = re.match(list_pattern, line)
     if match:
         li_matched = True
 
-        # Open ul if ^li_matched and ul is not open
+        # Open ul if ^li_matched and ul is not open yet
         if not root_ul_open:
-            content_html.extend(["<ul>", "\n"]) 
+            output_list.extend(["<ul>", "\n"]) 
             root_ul_open = True
 
         # Check the inside of li for other matches
-        content_html.append(f"<li>{match.group(1)}</li>")
+        line_text, nested_ul_open = _convert_nested_list(match.group(1))
+        output_list.append(f"<li>{line_text}</li>")
+
+        if nested_ul_open:
+            output_list.extend(["</ul>", "\n"])
+            nested_ul_open = False
+
     else:
         li_matched = False
 
         # If li not matched, and ul is still open, close it.
         if root_ul_open:
-            content_html.extend(["</ul>", "\n"])
+            output_list.extend(["</ul>", "\n"])
             root_ul_open = False
         
+    output = ''.join(output_list)
 
-    return li_matched, root_ul_open
+    return output, li_matched, root_ul_open
 
 
-def _convert_heading(line, nesting_flag=False):
+def _convert_nested_list(line, nested_ul_open=False):
+    output_list = []
+
+    list_pattern = r'-\s(.*)'
+    match = re.match(list_pattern, line)
+    if match:
+        # Open ul if ^li_matched and ul is not open yet
+        if not nested_ul_open:
+            output_list.extend(["<ul>", "\n"]) 
+            nested_ul_open = True
+
+            # Check the inside of li for other matches
+            line_text, nested_ul_open = _convert_nested_list(match.group(1))
+            output_list.append(f"<li>{line_text}</li>")
+
+        else:
+            # If li not matched, and ul is still open, close it.
+            if nested_ul_open:
+                output_list.extend(["</ul>", "\n"])
+                nested_ul_open = False
+
+    output = ''.join(output_list)
+
+    return output, nested_ul_open
+        
+
+def _convert_heading(line):
     heading_pattern  = r'(#{1,6})\s(.*)'
     match = re.match(heading_pattern, line)
     if match:
@@ -37,10 +72,7 @@ def _convert_heading(line, nesting_flag=False):
         output = line
         match_found = False
 
-    if not nesting_flag:
-        return output, match_found
-    else:
-        return output
+    return output, match_found
 
 
 def _convert_strong(line):

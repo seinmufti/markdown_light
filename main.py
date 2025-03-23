@@ -1,4 +1,4 @@
-from markdown_light2 import MarkDownerLight
+from markdown_light import MarkDownerLight
 from content import content
 
 markdowner = MarkDownerLight()

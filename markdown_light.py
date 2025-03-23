@@ -20,10 +20,9 @@ class MarkDownerLight():
             line = line.strip()
 
             # Commence checking for li
-            li_matched, root_ul_open = _convert_list(content_html_list, line, root_ul_open)
+            line, li_matched, root_ul_open = _convert_list(line, root_ul_open)
             if li_matched:
                 match_found = True
-
 
             """
             if not match_found:
@@ -35,11 +34,14 @@ class MarkDownerLight():
             # Accessory elements
             line = _convert_strong(line)
             line = _convert_anchor(line)
+            
             """
 
             # If no matches were found, turn to paragraph.
             if not match_found:
                 line = _convert_paragraph(line)
+
+            content_html_list.append(line)
             
             # If reached the last line, and ul still open, close it.
             if root_ul_open and i == len_lines - 1:

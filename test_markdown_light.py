@@ -1,5 +1,5 @@
 import pytest
-from markdown_light2 import MarkDownerLight
+from markdown_light import MarkDownerLight
 
 
 def test_heading():
