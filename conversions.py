@@ -1,78 +1,55 @@
 import re
 
 
-def _convert_list(line, root_ul_open):
-    output_list = []
+def _convert_list(line, ul_open, is_last_line):
+    li_matched = False
+    output = []
 
-    list_pattern = r'-\s(.*)'
-    match = re.match(list_pattern, line)
+    li_pattern = r'-\s(.*)'
+    match = re.match(li_pattern, line)
     if match:
+        # Boolean for returning output opening and closing output seperately,
+        # And indicating if li was found to not be converted to <p> later.
         li_matched = True
 
-        # Open ul if ^li_matched and ul is not open yet
-        if not root_ul_open:
-            output_list.extend(["<ul>", "\n"]) 
-            root_ul_open = True
+        match = match.group(1)
+        # open ul if not already open
+        if not ul_open:
+            output.extend(["<ul>", '\n'])
+            ul_open = True
 
-        # Check the inside of li for other matches
-        line_text, nested_ul_open = _convert_nested_list(match.group(1))
-        output_list.append(f"<li>{line_text}</li>")
+        converted_line, _ = _convert_heading(match)
 
-        if nested_ul_open:
-            output_list.extend(["</ul>", "\n"])
-            nested_ul_open = False
+        output.extend(["<li>", converted_line, "</li>"])
 
+        if is_last_line:
+            # If last line, close the matched li with opened ul.
+            output.extend(["\n", "</ul>"])
+            ul_open = False
     else:
-        li_matched = False
-
-        # If li not matched, and ul is still open, close it.
-        if root_ul_open:
-            output_list.extend(["</ul>", "\n"])
-            root_ul_open = False
-        
-    output = ''.join(output_list)
-
-    return output, li_matched, root_ul_open
-
-
-def _convert_nested_list(line, nested_ul_open=False):
-    output_list = []
-
-    list_pattern = r'-\s(.*)'
-    match = re.match(list_pattern, line)
-    if match:
-        # Open ul if ^li_matched and ul is not open yet
-        if not nested_ul_open:
-            output_list.extend(["<ul>", "\n"]) 
-            nested_ul_open = True
-
-            # Check the inside of li for other matches
-            line_text, nested_ul_open = _convert_nested_list(match.group(1))
-            output_list.append(f"<li>{line_text}</li>")
-
+        # If not li, and ul is still open, close it.
+        if ul_open:
+            output.extend(["</ul>", '\n'])
         else:
-            # If li not matched, and ul is still open, close it.
-            if nested_ul_open:
-                output_list.extend(["</ul>", "\n"])
-                nested_ul_open = False
+            output.append(line)
 
-    output = ''.join(output_list)
-
-    return output, nested_ul_open
-        
+    # Convert output to str
+    output_str = ''.join(output)
+                
+    return output_str, li_matched, ul_open
+    
 
 def _convert_heading(line):
+    match_found = False
+
     heading_pattern  = r'(#{1,6})\s(.*)'
     match = re.match(heading_pattern, line)
     if match:
         len_symbol, line_text = len(match.group(1)), match.group(2)
-        output = f"<h{len_symbol}>{line_text}</h{len_symbol}>"
+        line = f"<h{len_symbol}>{line_text}</h{len_symbol}>"
         match_found = True
-    else:
-        output = line
-        match_found = False
 
-    return output, match_found
+    return line, match_found
 
 
 def _convert_strong(line):
@@ -92,23 +69,3 @@ def _convert_anchor(line):
 def _convert_paragraph(line):
     paragraph_html = f"<p>{line}</p>"
     return paragraph_html
-
-
-def checker(pattern, line):
-    match = re.search(pattern, line)
-    if match:
-        print(match.group(0))
-    else:
-        print("no match")
-
-
-def initiation_wrapper(line, ul_open, li_matched, nesting_flag):
-    line = _convert_list(line, ul_open, li_matched, nesting_flag)
-    """
-    # line = _convert_heading(line, nesting_flag)
-    # line = _convert_strong(line)
-    # line = _convert_anchor(line)
-    """
-
-    return line
-
