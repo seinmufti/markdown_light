@@ -1,6 +1,6 @@
-from markdown_light import MarkDownerLight
+from markdown_light import Markdown
 
-markdowner = MarkDownerLight()
+markdowner = Markdown()
 content = "- item 1\n- item 2\n- item 3"
 to_html = markdowner.to_html(content)
 
@@ -12,7 +12,7 @@ to_html = markdowner.to_html(content)
 # Try all the created pages
 # Test editing and routes again
 # Make video
-# post  
+# post
 
 print(to_html)
 

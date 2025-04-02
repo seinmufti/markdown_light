@@ -1,7 +1,8 @@
 import re
 from conversions import _convert_heading, _convert_strong, _convert_anchor, _convert_paragraph, _convert_list
 
-class MarkDownerLight():
+
+class Markdown():
     def to_html(self, content):
         # Prepare input
         content_lines = content.splitlines()
