@@ -15,14 +15,15 @@ class Markdown():
             # Boolean initialization
             match_found = False
 
+            # Skip empty lines
+            if re.fullmatch(r'\s*', line):
+                continue
+
             if i ==  content_lines_len - 1:
                 is_last_line = True
             else:
                 is_last_line = False
 
-            # Skip empty lines
-            if re.fullmatch(r'\s+', line):
-                continue
             # Remove leading and traling white spaces, and commence conversion.
             line = line.strip()
             converted_line = line

@@ -1,8 +1,20 @@
 from markdown_light import Markdown
 
-markdowner = Markdown()
-content = "- item 1\n- item 2\n- item 3"
-to_html = markdowner.to_html(content)
+# input_file = './inputs/CSS.md'
+# output_folder = './outputs'
+
+
+# with open(input_file, 'r') as raw_file:
+#     content_md = raw_file.read()
+#     print(content_md)
+
+# markdowner = Markdown()
+# content_html = markdowner.to_html(content_md)
+
+
+# with open(f"{output_folder}/test.md", 'w') as out_file:
+#      out_file.write(content_html)
+
 
 # TODO: 
 # ===Prepare all tests
@@ -14,7 +26,7 @@ to_html = markdowner.to_html(content)
 # Make video
 # post
 
-print(to_html)
-
-with open('test.html', 'w') as html_file:
-    html_file.write(to_html)
+content_md = '# hi\n\nthere'
+markdowner = Markdown()
+content_html = markdowner.to_html(content_md)
+print(content_html)
