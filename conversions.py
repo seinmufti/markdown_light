@@ -5,7 +5,7 @@ def _convert_list(line, ul_open, is_last_line):
     li_matched = False
     output = []
 
-    li_pattern = r'-\s(.*)'
+    li_pattern = r'[-*]\s(.*)'
     match = re.match(li_pattern, line)
     if match:
         # Boolean for returning output opening and closing output seperately,
